@@ -1,0 +1,36 @@
+\thispagestyle{plain}
+\chapter{Related Work}
+
+In this chapter, I present work related to the topic of workload-based data partitioning.
+Additionally, we reference work that deals with data partitioning in a broader sense.
+
+\begin{enumerate}
+\item \emph{Baseline indexes}
+    \begin{itemize}
+        \item B-tree \cite{Bayer1970-rh}
+        \item ART index \cite{Leis2013}
+    \end{itemize}
+\item \emph{Hybrid/Adaptive Index Structures}
+
+    \begin{itemize}
+    \item Adaptive Hybrid Indexes \cite{Anneser2022} for context and compacting/decompressing criterias
+    \item GENE \cite{Dittrich2021} for the approach to look at indexes as logical components and combining them, generic
+    search briefly to iterate over starting options and give our partitioning as possible better starting point.
+    \end{itemize}
+
+\item \emph{Learned Index Structures}
+
+    Emphasize how they use the underlying data distribution
+    \begin{itemize}
+    \item FITing-Tree \cite{Galakatos2019} as introduction to PGM (brief)
+    \item PGM-index \cite{Ferragina:2020pgm} for optimal linear piecewise partitioning
+    \item RMI/ALEX \cite{Kraska2018}, \cite{Ding2020} with their tree-like model structure, ALEX to improve upon caveats of RMI (updatability)
+    \end{itemize}
+
+\item \emph{Distributed (Database) Systems}
+
+    Context: data partitioning in the sense that different partitions can be stored on different nodes of the distributed system
+    \begin{itemize}
+    \item Schism \cite{Curino2010} for their workload-centric approach to data partitioning
+    \end{itemize}
+\end{enumerate}
