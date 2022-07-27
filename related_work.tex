@@ -1,30 +1,29 @@
 \thispagestyle{plain}
 \chapter{Related Work}
 
-In this chapter, I present work related to the topic of workload-based data partitioning.
-Additionally, we reference work that deals with data partitioning in a broader sense.
+This chapter covers work related to Workload-based Data Partitioning. I also introduce the index structures used as baselines in the evaluation.
+
+The well-known B-tree is the first basic index structure used in the comparison \cite{Bayer1970-rh}.
+
+Another index that was used is an ART Tree \cite{Leis2013}.
+
+To cover the last index structure used in the comparison, we need to look at another class of index structures that only emerged recently. Learned index structures generally try to leverage recent progress in the field of Machine Learning to improve index performance.
+
+RMI \cite{Kraska2018} and ALEX \cite{Ding2020} use many small Machine Learning models to build a tree-like hierarchy. The segmentation happens through the given structure and training of the internal node's models.
+
+FITing-Tree \cite{Galakatos2019} tries to combine the ﬂexibility of traditional index structures with learning by indexing linear data segments. The data partitioning is done by a single pass over the sorted data. The segmentation algorithm aims to determine the data segments' bounds so that the relation between keys and positions in the sorted array can be approximated by a linear function. A new segment is created if a point falls outside an error cone. Otherwise, the cone is adjusted by tightening the cone boundaries to ensure the error bounds within each segment.
+
+The authors of the PGM-index \cite{Ferragina:2020pgm}, which I used as the third baseline in the evaluation, tried to improve upon the ideas of FITing-Tree. While their approach seemed reasonable, a disadvantage was the data segmentation. The authors note that the single-pass segmentation algorithm does not produce the optimal number of data segments, leading to more tree leaves and an increased lookup time. By reducing the segmentation to the problem of constructing a convex hull and allowing the index to be built recursively, they could increase the lookup time by xxxxx.
+
+While learned index structures perform so well because they can adapt to the underlying data distribution, they do not consider the workload that will be executed. While RMI and ALEX partition the data indirectly through their models, FITing-Tree and PGM explicitly use segmentation algorithms before building the index to determine the data that belongs in one segment. However, workload information might be beneficial to index construction, e.g.~by indicating that certain data segments are not frequently requested. This is what's different in my work because I try to use the workload for data segmentation, not primarily the underlying data distribution.
 
 \begin{enumerate}
-\item \emph{Baseline indexes}
-    \begin{itemize}
-        \item B-tree \cite{Bayer1970-rh}
-        \item ART index \cite{Leis2013}
-    \end{itemize}
 \item \emph{Hybrid/Adaptive Index Structures}
 
     \begin{itemize}
-    \item Adaptive Hybrid Indexes \cite{Anneser2022} for context and compacting/decompressing criterias
+    \item Adaptive Hybrid Indexes \cite{Anneser2022} for context and compacting/decompressing criteria
     \item GENE \cite{Dittrich2021} for the approach to look at indexes as logical components and combining them, generic
-    search briefly to iterate over starting options and give our partitioning as possible better starting point.
-    \end{itemize}
-
-\item \emph{Learned Index Structures}
-
-    Emphasize how they use the underlying data distribution
-    \begin{itemize}
-    \item FITing-Tree \cite{Galakatos2019} as introduction to PGM (brief)
-    \item PGM-index \cite{Ferragina:2020pgm} for optimal linear piecewise partitioning
-    \item RMI/ALEX \cite{Kraska2018}, \cite{Ding2020} with their tree-like model structure, ALEX to improve upon caveats of RMI (updatability)
+    search briefly to iterate over starting options and give our partitioning as a possible better starting point.
     \end{itemize}
 
 \item \emph{Distributed (Database) Systems}
