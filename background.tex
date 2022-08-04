@@ -1,26 +1,57 @@
 \thispagestyle{plain}
 \chapter{Background}
 
-\section{Hybrid Index Structures}
+In this chapter, we cover the background information necessary to understand our approach and the idea behind the used algorithms.
+
+First, we look at the definition of partitions and how indexes partition data using partitioning functions in section \ref{bg:partitions}. After that, we cover hybrid indexes and their structure in section \ref{bg:hybrid}. To understand the idea behind an algorithm that will be used, we look at numerical differentiation to approximate the derivative of a function in section \ref{bg:numerical}.
+
+\section{Partitions (???and Partitioning functions)}\label{bg:partitions}
+Let us first look at the definition of a partition in the rigorous mathematical sense to transfer this to the field of index structures. The following definition is taken from \citeauthor{Lucas1990} \cite{Lucas1990}.
+
+\vspace{0.5cm}
+\noindent \textbf{Definition 3.1 (Partition):}
+
+\noindent Let $M \neq \emptyset$ be a nonempty set. A partition $P$ of $M$ is a collection of subsets of $M$ with the following properties:
+
+\begin{enumerate}
+    \item[P.1] $\forall p \in P: p \neq \emptyset$
+    \item[P.2] $\forall p,q \in P: p \neq q \implies p \cap q = \emptyset$
+    \item[P.3] $\bigcup_{p \in P} p = M$
+\end{enumerate}
+
+\noindent To summarize, a partition $P$ of $M$ is a collection of nonempty (P.1), mutually disjoint (P.2) subsets of $M$, whose union exhausts all of $M$ (P.3).
+
+\vspace{0.5cm}
+To adapt this to data partitioning for index construction, we can look at the keys $K = \{k_1, k_2, ..., k_n\}$ over which we want to construct our index. If we look at typical B$^+$-trees, the data partitioning is induced by the contents of the leaf nodes. B$^+$-trees don't allow empty nodes (P.1), there is only one possible way to traverse through the index given a certain key, which means that the leaf nodes' contents are disjoint (P.2) and if the index was built over the whole key space $K$, every key will be present in some leaf node (P.3). 
+
+\begin{itemize}
+    \item Partitioning functions for indexes
+    \item Used in routing of through index
+\end{itemize}
+
+\section{Hybrid Index Structures}\label{bg:hybrid}
+TODO: Need this to describe structure of our index
+TODO: read into different kinds of hybrid indexes
 \begin{itemize}
     \item What are hybrid index structures?
     \item Advantages: optimize for subproblems, combine to one index
     \item challenges: correct combination of these structures (e.g.~routing through data structure)
 \end{itemize}
 
-\section{Partition and Partitioning functions}
-\begin{itemize}
-    \item Mathematical set theory definition of partition
-    \item Adaption to key space/segments
-    \item Partitioning functions for indexes
-    \item Used in routing of through index
-\end{itemize}
 
-\section{Numerical Differentiation}
-\begin{itemize}
-    \item Finite difference approximations
-    \item Relation to true derivative (limes h -> 0)
-    \item Consistency order of approximations
-    \item Forward, Central, Backward finite difference approximations
-\end{itemize}
+\section{Numerical Differentiation}\label{bg:numerical}
+TODO: visualization (Sekanten)
+To calculate the derivative of a function $f$ at a point $x$, we know we have to evaluate the limit 
+$$
+\lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h}
+$$
+
+However, we cannot evaluate this limit if we only have a discrete function. For this purpose, we can use finite differences to approximate the derivative. There are three common ways for this kind of approximation:
+\begin{enumerate}
+    \item Forward difference approximation: $\frac{f(x + h) - f(x)}{h}$
+    \item Backward difference approximation: $\frac{f(x) - f(x-h)}{h}$
+    \item Central difference approximation: $\frac{f(x + \frac{h}{2}) - f(x - \frac{h}{2})}{h}$
+\end{enumerate}
+
+As these are only approximations, they are not exact representations of the actual derivative and produce an error. Using Taylor's expansion, we can show that for the central difference approximation, this error is in $O(h^2)$ while it is in $O(h)$ for the forward and backward difference approximations. The central difference approximation is, therefore, more accurate but has the downside that it can yield zero estimations for periodic functions.
 
