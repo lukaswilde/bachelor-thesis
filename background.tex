@@ -65,8 +65,9 @@ As the amount of iterations is set as a global parameter, the starting populatio
 
 
 \section{Numerical Differentiation}\label{bg:numerical}
-//TODO: visualization (Sekanten)
 //TODO: visulize disadvantage: periodic function
+
+In the coming sections, we will discuss an algorithm that aims to find the boundaries of a plateau of a function. As we will not work on a continuous function, but a discrete one, we need to look at a way that enables us to approximate the derivative of a discrete function. This will be useful, as a plateau is identified by a vanishing derivative.
 
 To calculate the derivative of a function $f$ at a point $x$, we know we have to evaluate the limit 
 $$
@@ -79,6 +80,17 @@ However, we cannot evaluate this limit if we only have a discrete function. For 
     \item Backward difference approximation: $\frac{f(x) - f(x-h)}{h}$
     \item Central difference approximation: $\frac{f(x + \frac{h}{2}) - f(x - \frac{h}{2})}{h}$
 \end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/approx_1.png}
+    \includegraphics[width=0.6\textwidth]{figures/approx_2.png}
+    \includegraphics[width=0.6\textwidth]{figures/approx_3.png}
+    \caption{Comparison of the difference approximations}
+    \label{fig:approximations}
+\end{figure}
+
+To motivate the later use of the approximations for identifying plateaus, we can look at Figure \ref{fig:approximations}. All images show the three difference approximations at different points, where they are used to approximate the slope of the blue function. In the first image, we can see that we are at the start of the plateau, but only the slope of the forward approximation is nearly zero, the other two are still quite different to zero. This is why we can use the forward approximation to find the start of a plateau. On the second image, we see that when we are inside the plateau, all approximations are zero, so we would choose the central approximation as it is more robust to outliers in one single directions. And in the last image, we see the approximations still quite a bit before the end of the plateau, and we can recognize that only the backward approximation is still near zero. If we would use one of the others to find the end of a plateau, we had already stopped before the actual end is reached.
 
 As these are only approximations, they are not exact representations of the actual derivative and produce an error. Using Taylor's expansion, we can show that for the central difference approximation, this error is in $O(h^2)$ while it is in $O(h)$ for the forward and backward difference approximations. The central difference approximation is, therefore, more accurate but has the downside that it can yield zero estimations for periodic functions.
 
