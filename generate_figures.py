@@ -16,9 +16,7 @@ colors = cm.get_cmap("tab10", 2)
 col1 = colors(0)
 col2 = colors(1)
 
-fig = plt.figure(figsize=(12, 6))
-ax1 = plt.axes((0.1, 0.1, 0.35, 0.9))
-ax2 = plt.axes((0.55, 0.1, 0.35, 0.9))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
 
 ax1.spines['right'].set_visible(False)
 ax1.spines['top'].set_visible(False)
@@ -66,8 +64,8 @@ ax1.plot(x[x0], 0.0, marker='o', color='k')
 ax1.plot(x[upper_idx], 0.0, marker='o', color=col2)
 ax1.plot(x[lower_idx], 0.0, marker='o', color=col2)
 
-ax1.text(x[upper_idx] + 0.2, 0.1, r'$f(x_0) + \pi$')
-ax1.text(x[lower_idx] + 0.2, 0.1, r'$f(x_0) - \pi$')
+ax1.text(x[upper_idx] + 0.2, 0.1, r'$f(x_0 + \pi)$')
+ax1.text(x[lower_idx] + 0.2, 0.1, r'$f(x_0 - \pi)$')
 ax1.text(x[x0] + 0.2, -0.1, r'$x_0$')
 
 
@@ -83,11 +81,12 @@ ax2.plot(x[x0], 0.0, marker='o', color='k')
 ax2.plot(x[upper_idx], y[upper_idx], marker='o', color=col2)
 ax2.plot(x[lower_idx], y[lower_idx], marker='o', color=col2)
 
-ax2.text(x[upper_idx] + 0.2, y[upper_idx] + 0.1, r'$f(x_0) + \frac{3\pi}{4}$')
-ax2.text(x[lower_idx] - 3, y[lower_idx] - 0.1, r'$f(x_0) - \frac{3\pi}{4}$')
+ax2.text(x[upper_idx] + 0.2, y[upper_idx] + 0.1, r'$f(x_0 + \frac{3\pi}{4})$')
+ax2.text(x[lower_idx] - 3, y[lower_idx] - 0.1, r'$f(x_0 - \frac{3\pi}{4})$')
 ax2.text(x[x0] + 0.2, -0.1, r'$x_0$')
 
-plt.savefig('figures/central_periodic.pdf')
+fig.tight_layout()
+fig.savefig('figures/central_periodic.pdf')
 
 def plot_central(x, y, idx, window, ax):
     # central approximation
@@ -192,6 +191,7 @@ ax1.text(220, 36, r'$x_0$')
 ax2.text(330, 43, r'$x_1$')
 ax3.text(420, 36, r'$x_2$')
 
-ax2.legend(loc='upper center', fontsize='small')
+ax2.legend(loc='upper center')
 
-plt.savefig('figures/approximations.pdf')
+fig.tight_layout()
+fig.savefig('figures/approximations.pdf')
