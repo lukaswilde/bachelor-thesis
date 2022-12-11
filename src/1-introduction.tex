@@ -1,0 +1,18 @@
+\chapter{Introduction}
+Over the years, a plethora of index structures have been proposed to deal with emerging difficulties and opportunities like cache efficiency or main-memory design. Designing a new index takes time and maybe covers only specific situations, which is why we have seen a recent attempt to abandon handcrafted indexes altogether. The approach by \citeauthor{Dittrich2021} \cite{Dittrich2021} uses genetic search with an initial population of generalized index structures to breed new and better indexes. Bred indexes are then evaluated using a fitness function over some workload. Since the leaf nodes of the indexes in their framework do not have a fixed size, we can fill them with whatever amount of data we feel is suitable. In our opinion, a good starting index would already incorporate the workload information on which it will later be evaluated. However, it is not clear what information about the workload could be used to create a good starting index. 
+
+In the indexing world, we know that certain types of indexes are better for certain scenarios than others. For example, a B-tree with ISAM is a good choice for range queries, whereas a hash table delivers the best performance for point queries. Therefore, it would be beneficial to have the index leaves as individual parts that can change their data structure based on the queries. Apart from this, we also know that the nodes in the upper layers of a B-tree are usually cached when executing a workload because they are traversed for most queries. The logical consequence for our index would be placing leaves requested very often higher up in the index. The two relevant workload properties for these two cases are the \textit{query type purity} and the \textit{frequency} inside a leaf.
+
+In our work, we aim to develop two partitioning algorithms that analyze the workload and use these two properties to create suitable partitions of our data. These partitions could then be used as the leaves of an index, where they are also mutated as described above. We use different workloads to evaluate the partitioning algorithms and compare the resulting index against the state-of-the-art. 
+
+\clearpage
+\noindent The rest of this thesis is structured in the following way. We first provide an overview of related work in \Cref{sec:related_work}. Most of it introduces different index structures that we will either use as comparison points in benchmarks or that apply some sort of partitioning to the data.
+
+\noindent Afterwards, we look at the necessary background needed to understand our partitioning algorithms in \Cref{sec:background}. This includes what we define as partitions and how they can be applied to the indexing domain. We also introduce the indexing framework that we used to evaluate our partitioning algorithms and present how one can approximate the first-order derivative of discrete functions. 
+
+\noindent \Cref{sec:framework} showcases the design of our partitioning algorithms and the framework we used to evaluate them. We go over each step in the pipeline to understand the methods that are applied in our evaluation.
+
+\noindent This evaluation is then covered in \Cref{sec:evaluation} where we present the experimental setup, get a deeper understanding of how the partitioning algorithms work, and eventually report the results of the experiments we conducted.
+
+\noindent The results are then summarized in \Cref{sec:conclusion}, and we present possible directions for further research in this area.
+

@@ -1,0 +1,98 @@
+\thispagestyle{plain}
+\chapter{Background}\label{sec:background}
+
+Before we can look at the approach used to evaluate the partitioning algorithms we designed, we need to cover some essential information. First, we look at the definition of partitions and how indexes partition data using partitioning functions in \Cref{bg:partitions}. After that, we cover hybrid indexes and their structure in \Cref{bg:hybrid}, where we also lay the foundation for the index we used later. To understand the idea behind the design of one algorithm we used to partition our data, we look at numerical differentiation to approximate the derivative of a function in \Cref{bg:numerical}.
+
+\section{Partitions and Partitioning functions}\label{bg:partitions}
+Let us first look at the definition of a partition in the rigorous mathematical sense to transfer this to the field of index structures. The following definition is taken from \citeauthor{Lucas1990} \cite{Lucas1990}.
+
+\vspace{0.5cm}
+\begin{definition}[Partition]
+Let $M \neq \emptyset$ be a nonempty set. A partition $P$ of $M$ is a collection of subsets of $M$ with the following properties:
+
+\begin{enumerate}
+    \item[P.1] $\forall p \in P: p \neq \emptyset$
+    \item[P.2] $\forall p,q \in P: p \neq q \implies p \cap q = \emptyset$
+    \item[P.3] $\bigcup_{p \in P} p = M$
+\end{enumerate}
+
+\noindent To summarize, a partition $P$ of $M$ is a collection of nonempty (P.1), mutually disjoint (P.2) subsets of $M$, whose union is equal to $M$ (P.3).
+\end{definition}
+
+\vspace{0.5cm}
+To adapt this to data partitioning for index construction, we can look at the keys $K = \{k_1, k_2, ..., k_n\}$ over which we want to construct our index. If we look at typical B$^+$-trees, the data partitioning is induced by the contents of the leaf nodes. B$^+$-trees don't allow empty nodes (P.1), there is only one possible way to traverse through the index given a certain key, which means that the leaf nodes' contents are disjoint (P.2), and if the index was built over the whole key space $K$, every key would be present in some leaf node (P.3). However, this definition only strictly holds for the case when the B$^+$-tree is built over a unique attribute, i.e.~there are no duplicates in our keys ($k_i \neq k_j$ for all $i \neq j$). If the index is built over a non-primary key attribute, there is the possibility that two duplicate keys will not be present in the same leaf node but on neighboring ones. The leaf nodes are therefore not completely disjoint anymore.  
+
+This example was completely based on the logical properties of the B$^+$-tree; we did not incorporate any knowledge we might have of the physical layout of the index. In general, if we look for a key inside a B$^+$-tree, we look at the root node, find out which child node we have to visit next, and proceed further down the tree until we reach a leaf node, where the actual memory location of the key is stored. How exactly we find the next child (e.g.~binary search) is not relevant to us at the moment. It is enough for us to know that each B$^+$-tree node partitions its search range and gives us some information about which child we need to visit next. This logical information (i.e.~what the node does, but not how exactly this is implemented) can be used to formalize the partitioning inside an index. According to \citeauthor{Dittrich2021} \cite{Dittrich2021}, one can define a logical node as follows:
+
+\vspace{0.5cm}
+\begin{definition}[Logical Node]\label{def:logicalnode}
+A logical node is a tuple (p, RI, DT):
+\begin{enumerate}
+    \item $p: [R] \rightarrow D$ is a \textbf{partitioning function} on the relational schema $[R] : \{ [A_1 : D_1, ..., A_n : D_n] \}$. $p$ may be undefined.
+    \item $RI : D \rightarrow \mathcal{P}(N)$ is the \textbf{routing information}, where $N$ is a set of nodes and $\mathcal{P}(N)$ is the power set of $N$. Each element of $D$ (target domain of $p$) is mapped to a subset of nodes in $N$. $RI$ may be undefined.
+    \item $DT$ is the \textbf{data}. It is a set of tuples with relational schema $[R]$. $DT$ may be empty.
+\end{enumerate}
+\end{definition}
+
+\noindent Using this definition, we can see how a partitioning function interacts with the routing information to organize an index. Looking at the above example, we can see that the partitioning inside a B$^+$-tree happens through the partitioning function $p(t) = t.e$, where $t$ is a tuple according to the relation schema which has an attribute $e$. The routing information maps certain ranges (that are created in the B$^+$-tree through the keys in inner nodes) to the corresponding child nodes. \Cref{fig:logical_btree} shows how a B$^+$-tree can be represented logically. The relational schema used for this example is $[R] : \{ [e:\text{int}, g:\text{char}] \}$ with relation $R = \{ \text{(2, A), (7, B), (1, B), (6, C), (12, Z), (11, C)}\}$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/logical_btree.png}
+    \caption{Logical Index Representation of a B-tree with ISAM}
+    \caption*{\hfill Source: \citeauthor{Dittrich2021} \cite{Dittrich2021}}
+    \label{fig:logical_btree}
+\end{figure}
+
+\section{Hybrid Index Structures}\label{bg:hybrid}
+To understand the motivation of this work and the general structure of the index that will later be used in evaluating our partitioning algorithms, we will now look at the framework presented by \citeauthor{Dittrich2021} \cite{Dittrich2021} in more detail.
+
+We have already seen logical nodes in \Cref{def:logicalnode}, which introduced the concept of partitioning functions and routing information to construct an index. Although we have used the B$^+$-tree as an example above, we need to note that the routing information is more general than just a tree-like structure. In theory, there is no restriction to the graph layout created by the routing information. Additionally, this framework is purely logical yet, i.e.~no physical layout is assumed. The power of this indexing framework lies in its generalization over hand-crafted indexes. We saw that we could represent B$^+$-trees with it, but Radix Trees and learned index structures can also be modeled using logical nodes. Because a logical index is just a set of logical nodes that are connected in some way, we can easily connect nodes with different kinds of partitioning functions to form a Hybrid Logical Index. 
+
+In the next step to realize this framework, we have to move from the purely logical index to a physical index by specifying how the logical nodes with their routing information and data should be physically represented. The first part of this specialization is determining the search method that should be used in the RI and DT parts of the node to find key/value pairs. Possible options here are, amongst others, linear search, binary search, or chained hashing. Note that the choice here can already impact the data layout that should be used inside the node, e.g.~for binary search, we naturally require a sorted layout. Other options for the data layout include column or row layout, and whether to use compression.
+
+With this multitude of options to create a physical index, we must decide which configuration we should use for a specific use case. This is done using a genetic algorithm. It starts with an initial population of physical index structures and performs several iterations in the genetic search, either for a predefined amount or until convergence is reached. This includes sampling from the current population and determining the fittest index and the median fitness across the sample. After that, several mutations are randomly drawn for this fittest index and applied. If this new mutated index has a better fitness than the median fitness from before, it is added to the population (replacing the worst index there if needed), and the whole process is repeated. After the predefined amount of iterations is reached or the fitness converges, the fittest index in the population is selected. Mutations include changing the data layout or the search method of the RI or DT part, merging sibling nodes horizontally/vertically, or splitting nodes horizontally/vertically. Note that the selection of the fittest index is completely dependent on the selected performance measure and the fitness functions representing it. A possible goal of genetic optimization could be the runtime of the index on a given workload, where the fitness function could just be the median runtime of the workload over a given number of runs. Other goals include memory or energy efficiency.
+
+Naturally, the starting population plays a big role in how good a genetically bred index can become and how fast we converge to the optimal index. If we would already start with a reasonable population, chances are higher that a good index can be found faster. The authors present four possible ways to determine the initial population:
+
+\begin{enumerate}
+    \item We start with a single physical node that does not contain data yet.
+    \item We start with a single physical node that contains all the data with a random or manually set data layout and search method.
+    \item We use bottom-up bulkloading where data layout and search method are picked randomly. The logical index structure is similar to a B$^+$-tree in this case.
+    \item We start with an index that represents a state-of-the-art hand-crafted index. The genetic algorithm here serves mainly for fine-tuning this already established index.
+\end{enumerate}
+\noindent Note that these starting options do not incorporate the workload information that will be used to find the fittest index in the population. However, if we were able to use that information in the starting population already, we could be able to find a better starting point for the genetic search than the described options above. This is the main motivation behind my work: using the workload information to find a partition of the data that can be used for bulkloading an index, similar to point 3) above. It would still be fairly general and allow the genetic search a good amount of modifications while setting physical design options optimized for the workload already in the beginning.
+
+
+\section{Numerical Differentiation}\label{bg:numerical}
+In the coming sections, we will discuss an algorithm that aims to find the boundaries of a plateau of a function. As we will not work on a continuous function but a discrete one, we need to look at a way that enables us to approximate the derivative of a discrete function. This will be useful, as a plateau is identified by a vanishing derivative.
+
+To calculate the derivative of a function $f$ at a point $x$, we know we have to evaluate the limit 
+$$
+\lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h}
+$$
+
+However, we cannot evaluate this limit if we only have a discrete function. For this purpose, we can use finite differences to approximate the derivative. There are three common ways for this kind of approximation:
+\begin{enumerate}
+    \item Forward difference approximation: $\frac{f(x + h) - f(x)}{h}$
+    \item Backward difference approximation: $\frac{f(x) - f(x-h)}{h}$
+    \item Central difference approximation: $\frac{f(x + \frac{h}{2}) - f(x - \frac{h}{2})}{h}$
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/approximations.pdf}
+    \caption{Comparison of the difference approximations}
+    \label{fig:approximations}
+\end{figure}
+
+To motivate the later use of the approximations for identifying plateaus of functions, we can look at \Cref{fig:approximations}. All images show the three difference approximations at different points, namely $x_0 = 200, x_1 = 350, x_2 = 500$, where they are used to approximate the slope of the function $f$. In the first image, we can see that we are at the start of the plateau, but only the slope of the forward approximation is zero; the other two are still positive. This is why we can use the forward approximation to find the start of a plateau. In the second image, we see that all approximations are zero when we are inside the plateau, so we would choose the central approximation as it is more robust to outliers in one direction. And in the last image, we see the approximations near the end of the plateau, and we can recognize that only the backward approximation is still zero. The forward and central approximations are already negative. If we used one of these to find the end of a plateau, we had already stopped before the actual endpoint.
+
+As these are only approximations, they are not exact representations of the actual derivative and produce an error. Using Taylor's expansion, we can show that for the central difference approximation, this error is in $O(h^2)$ while it is in $O(h)$ for the forward and backward difference approximations. The central difference approximation is, therefore, more accurate but has a slight downside in certain scenarios. When we want to approximate the derivative of a periodic function and our $h$ equals a multiple of the period, the central approximation will yield an estimation of zero. This simply happens because the values at $x-h$ and $x + h$ are identical, which follows from the periodicity of the function. An example is depicted in \Cref{fig:central_periodic}. The central approximation is used to estimate the slope of the $\sin$ function at the value $x_0 = 2\pi$. While we know there should be a positive, non-zero derivative, the estimate for $h = \pi$ is zero. In comparison, when another value like $h = \frac{3\pi}{4}$ is used, we get a positive estimate for the slope.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/central_periodic.pdf}
+    \caption[Central difference approximation for periodic function]{Central difference approximation for the function $f(x) = \sin{x}$ using $h = \pi$ and $h = \frac{3 \pi}{4}$}
+    \label{fig:central_periodic}
+\end{figure}

@@ -19,9 +19,13 @@
 \usepackage{listings}
 \usepackage{caption}
 \usepackage{svg}
+\usepackage{algpseudocode}
 \usepackage{algorithm}
-\usepackage{algorithmic}
+%\usepackage{algorithmic}
 \usepackage{amsthm}
+\usepackage[nameinlink]{cleveref}
+\usepackage{tocloft}
+%\usepackage{etoolbox}
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
@@ -59,7 +63,7 @@
 
 \lstset{style=mystyle}
 
-\addbibresource{main.bib}
+\addbibresource{src/main.bib}
 \nocite{*}
 
 %=======================================================================================================================
@@ -76,6 +80,15 @@
 \renewcommand*{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
 \renewcommand*{\sectionmark}[1]{\markright{\thesection.\ #1}}
 
+% Let top 85% of a page contain a figure
+\renewcommand{\topfraction}{0.85}
+
+% Default amount of minimum text on page (Set to 10%)
+\renewcommand{\textfraction}{0.1}
+
+% Only place figures by themselves if they take up more than 75% of the page
+\renewcommand{\floatpagefraction}{0.75}
+
 %=======================================================================================================================
 
 \author{Lukas Wilde}
@@ -88,6 +101,20 @@
 \let\runauthor\@author
 \let\runtitle\@title
 \let\rundate\@date
+
+\AtBeginDocument{%
+  \let\l@algorithm\l@figure%
+  \let\listofalgorithms\listoffigures% Copy \listoffigures
+  \let\@cftmakeloatitle\@cftmakeloftitle% Copy LoF title
+  % Update LoA-related macros
+  \patchcmd{\listofalgorithms}{\@cftmakeloftitle}{\@cftmakeloatitle}{}{}%
+  \patchcmd{\listofalgorithms}{\@starttoc{lof}}{\@starttoc{loa}}{}{}%
+  \patchcmd{\@cftmakeloatitle}{\listfigurename}{\listalgorithmname}{}{}%
+  % Add per-chapter LoA space (similar to LoF)
+  \patchcmd{\@chapter}{\addtocontents}{%
+    \addtocontents{loa}{\protect\addvspace{10\p@}}%
+    \addtocontents}{}{}%
+}
 \makeatother
 \sloppy
 
@@ -144,13 +171,13 @@
 %=======================================================================================================================
 
 \cleardoublepage
-\input{0-1-oath.tex}
+\input{src/0-1-oath.tex}
 
 %=======================================================================================================================
 
-\input{0-2-acknowledgement.tex}
-\clearpage
-\input{0-3-abstract.tex}
+%\input{src/0-2-acknowledgement.tex}
+\cleardoublepage
+\input{src/0-3-abstract.tex}
 
 %=======================================================================================================================
 
@@ -160,31 +187,33 @@
 \setcounter{tocdepth}{2} % but add them to the PDF
 \tableofcontents
 
+\clearpage
 \listoffigures
 \listoftables
+\listofalgorithms
 
 %=======================================================================================================================
 
 \cleardoublepage
 \pagenumbering{arabic}
-\input{1-introduction.tex}
+\input{src/1-introduction.tex}
 
 %=======================================================================================================================
 
 \clearpage
-\input{2-related_work.tex}
+\input{src/2-related_work.tex}
 
 \clearpage
-\input{3-background.tex}
+\input{src/3-background.tex}
 
 \clearpage
-\input{4-framework.tex}
+\input{src/4-framework.tex}
 
 \clearpage
-\input{5-evaluation.tex}
+\input{src/5-evaluation.tex}
 
 \cleardoublepage
-\input{6-conclusion.tex}
+\input{src/6-conclusion.tex}
 
 %=======================================================================================================================
 
@@ -195,7 +224,7 @@
 \setcounter{page}{1}
 \pagenumbering{roman}
 \begin{appendix}
-    \input{7-appendix.tex}
+    \input{src/7-appendix.tex}
 \end{appendix}
 
 \end{document}
