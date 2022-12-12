@@ -21,12 +21,11 @@ jobs:
         - name: checkout Repository
           uses: actions/checkout@v3
         - name: Create release
-          uses: Roang-zero1/github-create-release-action@v2
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        - name: Upload release artifact
-          uses: Roang-zero1/github-upload-release-artifacts-action@v2
+          uses: marvinpinto/action-automatic-releases@latest
           with:
-            args: "main.pdf"
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            repo_token: "${{ secrets.GITHUB_TOKEN }}"
+            automatic_release_tag: "latest"
+            prerelease: false
+            title: "Bachelor thesis"
+            files: |
+              main.pdf
