@@ -28,12 +28,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: thesis
-      - name: Create latest tag
-        uses: Roang-zero1/github-create-release-action@v2
-        with:
-          created_tag: "latest"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload release artifacts
         uses: ncipollo/release-action@v1
         with:
