@@ -1,0 +1,32 @@
+on: 
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+  
+name: Build & Release
+jobs:
+  build_latex:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v3
+        - name: Compile LaTeX document
+          uses: xu-cheng/latex-action@v2
+          with:
+            root_file: main.tex       
+  release:
+      runs-on: ubuntu-latest
+      needs: [build_latex]
+      steps:
+        - name: checkout Repository
+          uses: actions/checkout@v3
+        - name: Create release
+          uses: Roang-zero1/github-create-release-action@v2
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        - name: Upload release artifact
+          uses: Roang-zero1/github-upload-release-artifacts-action@v2
+          with:
+            args: "main.pdf"
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
