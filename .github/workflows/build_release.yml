@@ -29,6 +29,7 @@ jobs:
         - name: Upload release artifacts
           uses: Roang-zero1/github-upload-release-artifacts-action@v2
           with:
+            created_tag: "latest"
             args: "main.pdf"
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
