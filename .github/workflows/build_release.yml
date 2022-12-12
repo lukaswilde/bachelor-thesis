@@ -35,3 +35,4 @@ jobs:
           artifacts: "main.pdf"
           name: Bachelor Thesis
           makeLatest: true
+          allowUpdates: true
