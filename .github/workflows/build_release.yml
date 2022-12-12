@@ -13,19 +13,26 @@ jobs:
         - name: Compile LaTeX document
           uses: xu-cheng/latex-action@v2
           with:
-            root_file: main.tex       
-        - name: List files
-          run: ls -la
-        - name: Create release
-          uses: Roang-zero1/github-create-release-action@v2
+            root_file: main.tex
+        - name: Archive pdf
+          uses: actions/upload-artifact@v2
           with:
-            created_tag: "latest"
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        - name: Upload release artifacts
-          uses: Roang-zero1/github-upload-release-artifacts-action@v2
-          with:
-            created_tag: "latest"
-            args: "main.pdf"
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            name: main PDF
+            path: |
+              main.pdf
+        #- name: List files
+        #  run: ls -la
+        #  
+        #- name: Create release
+        #  uses: Roang-zero1/github-create-release-action@v2
+        #  with:
+        #    created_tag: "latest"
+        #  env:
+        #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #- name: Upload release artifacts
+        #  uses: Roang-zero1/github-upload-release-artifacts-action@v2
+        #  with:
+        #    created_tag: "latest"
+        #    args: "main.pdf"
+        #  env:
+        #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
