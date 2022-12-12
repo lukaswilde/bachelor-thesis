@@ -35,9 +35,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload release artifacts
-        uses: Roang-zero1/github-upload-release-artifacts-action@v2
+        uses: ncipollo/release-action@v1
         with:
-          created_tag: "latest"
-          args: "main.pdf"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          tag: "latest"
+          artifacts: "main.pdf"
+          name: Bachelor Thesis
+          makeLatest: true
